@@ -1,0 +1,12 @@
+app.get('/api/products/:id', async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const product = await Product.findById(productId); // Replace with your actual DB query
+
+        if (!product) return res.status(404).json({ error: "Product not found" });
+
+        res.json(product);
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
