@@ -128,7 +128,7 @@
         <div class="actions">
             <button class="button" onclick="openFilter()">Filter</button>
             <button class="button">
-                <a href="create_product">Add Product</a>
+                <a href="/create_product">Add Product</a>
             </button>
         </div>
     </div>
@@ -157,10 +157,10 @@
                     <td><%= product.latLong ? `Lat: ${product.latLong.lat}, Long: ${product.latLong.long}` : 'Not available' %></td>
                     <td>
                         <button class="button">
-                            <a href="product/update/<%= product.id %>">Edit</a>
+                            <a href="/product/update/<%= product.id %>">Edit</a>
                         </button>
                         <button class="button">
-                            <a href="view_product/<%= product.id %>">View</a>
+                            <a href="/view_product/<%= product.id %>">View</a>
                         </button>
                         <button class="button" onclick="showDetails('<%= product.id %>')">
                             Show Details
@@ -170,7 +170,7 @@
             <% }); %>
         </tbody>
     </table>
-<%-- Updated code  --%>
+
     <!-- Modal for Showing Product Details -->
     <div id="detailsModal" class="modal">
         <div class="modal-content">
