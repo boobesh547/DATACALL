@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-DYGe1ZJXg2GNS0YowUVfh7JMFU2vFg1dJvLnH5AMMzpIpt+U48HgTH5rOMiqnDT/6Y4A0AEv2d+FZW6D3FUKk5w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2874f0;
+            margin-bottom: 20px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            background-color: #2874f0;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: #fff;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #dddddd;
+        }
+
+        th {
+            background-color: #2874f0;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #eaeaea;
+        }
+
+        a {
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .headerContainer {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            width: 50%;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>All Products</h1>
+
+    <div class="headerContainer">
+        <div class="actions">
+            <button class="button" onclick="window.history.back()">Back</button>
+        </div>
+        <div class="actions">
+            <button class="button" onclick="openFilter()">Filter</button>
+            <button class="button">
+                <a href="create_product">Add Product</a>
+            </button>
+        </div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>User Id</th>
+                <th>Category Id</th>
+                <th>Location</th>
+                <th>Lat Lon</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% products.forEach(product => { %>
+                <tr>
+                    <td><%= product.id %></td>
+                    <td><%= product.name %></td>
+                    <td><%= product.price %></td>
+                    <td><%= product.userId %></td>
+                    <td><%= product.categoryId %></td>
+                    <td><%= product.location ? product.location : 'Not available' %></td>
+                    <td><%= product.latLong ? `Lat: ${product.latLong.lat}, Long: ${product.latLong.long}` : 'Not available' %></td>
+                    <td>
+                        <button class="button">
+                            <a href="product/update/<%= product.id %>">Edit</a>
+                        </button>
+                        <button class="button">
+                            <a href="view_product/<%= product.id %>">View</a>
+                        </button>
+                        <button class="button" onclick="showDetails('<%= product.id %>')">
+                            Show Details
+                        </button>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+<%-- Updated code  --%>
+    <!-- Modal for Showing Product Details -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Product Details</h2>
+            <p><strong>Name:</strong> <span id="modalName"></span></p>
+            <p><strong>Price:</strong> <span id="modalPrice"></span></p>
+            <p><strong>Location:</strong> <span id="modalLocation"></span></p>
+            <p><strong>Coordinates:</strong> <span id="modalLatLon"></span></p>
+        </div>
+    </div>
+
+    <script>
+        async function showDetails(productId) {
+            try {
+                const response = await fetch(`/api/products/${productId}`);
+                if (!response.ok) throw new Error("Failed to fetch product details");
+
+                const product = await response.json();
+
+                document.getElementById('modalName').innerText = product.name;
+                document.getElementById('modalPrice').innerText = product.price;
+                document.getElementById('modalLocation').innerText = product.location || "Not available";
+                document.getElementById('modalLatLon').innerText = product.latLong
+                    ? `Lat: ${product.latLong.lat}, Long: ${product.latLong.long}`
+                    : "Not available";
+
+                document.getElementById('detailsModal').style.display = 'block';
+            } catch (error) {
+                alert("Error fetching product details: " + error.message);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('detailsModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            let modal = document.getElementById('detailsModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+
+</html>
